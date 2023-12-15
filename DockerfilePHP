@@ -1,0 +1,27 @@
+FROM composer:2 as composer2
+
+FROM php:8.2-alpine
+
+COPY --from=composer2 /usr/bin/composer /usr/bin/composer
+
+COPY ./backend-laravel/ /app/backend-laravel/
+
+WORKDIR /app/backend-laravel
+RUN set -eux; \
+  if [ -f .env.example ] && [ ! -f .env ]; \
+  then \
+    cp .env.example .env; \
+  fi
+RUN set -eux; \
+  if [ ! -f ./database/database.sqlite ]; \
+  then \
+    touch ./database/database.sqlite; \
+  fi
+RUN composer install
+RUN php artisan key:generate
+RUN php artisan optimize:clear
+RUN php artisan migrate:fresh --force
+
+EXPOSE 8000
+
+CMD [ "php", "artisan", "serve", "--host", "0.0.0.0", "--port", "8000" ]

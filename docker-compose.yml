@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  # Node v18 Alpine
+  node:
+    build:
+      context: .
+      dockerfile: ./DockerfileNODE
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: node
+    working_dir: /app/frontend-vuejs
+    ports:
+      - "3000:3000"
+    networks:
+      - todo
+
+  # PHP v8.2 Alpine CLI
+  php:
+    build:
+      context: .
+      dockerfile: ./DockerfilePHP
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: php
+    working_dir: /app/backend-laravel
+    ports:
+      - "8000:8000"
+    networks:
+      - todo
+
+networks:
+  todo: 
+    driver: bridge
