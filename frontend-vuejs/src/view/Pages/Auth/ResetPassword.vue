@@ -13,11 +13,13 @@ if (!route.params.token || !route.query.email) {
   router.push({ name: "AuthForgotPassword" });
 }
 
+const ENV_PROD = import.meta.env.PROD;
+
 const resetPasswordForm = ref({
   token: route.params.token,
   email: route.query.email,
-  password: "",
-  password_confirmation: "",
+  password: ENV_PROD ? "" : "Password123!",
+  password_confirmation: ENV_PROD ? "" : "Password123!",
 });
 const resetPasswordFormErrors = ref({
   header: "",
@@ -26,22 +28,22 @@ const resetPasswordFormErrors = ref({
 });
 const resetPasswordFormButton = ref(true);
 
-function clearResetPasswordForm() {
+const clearResetPasswordForm = () => {
   resetPasswordForm.value = {
     password: "",
     password_confirmation: "",
   };
   resetPasswordFormButton.value = true;
-}
-function clearResetPasswordFormErrors() {
+};
+const clearResetPasswordFormErrors = () => {
   resetPasswordFormErrors.value = {
     header: "",
     password: "",
     password_confirmation: "",
   };
-}
+};
 
-function handleResetPasswordForm() {
+const handleResetPasswordForm = () => {
   if (resetPasswordFormButton.value) {
     clearResetPasswordFormErrors();
     resetPasswordFormButton.value = false;
@@ -68,7 +70,7 @@ function handleResetPasswordForm() {
         return;
       });
   }
-}
+};
 </script>
 
 <template>

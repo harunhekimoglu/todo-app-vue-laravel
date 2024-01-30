@@ -8,10 +8,12 @@ import PageComponent from "@view/Components/Auth/PageComponent.vue";
 const store = useStore();
 const router = useRouter();
 
+const ENV_PROD = import.meta.env.PROD;
+
 const loginForm = ref({
-  email: "",
-  password: "",
-  remember: false,
+  email: ENV_PROD ? "" : "john.doe@example.com",
+  password: ENV_PROD ? "" : "Password123!",
+  remember: !ENV_PROD,
 });
 const loginFormErrors = ref({
   header: "",
@@ -19,27 +21,27 @@ const loginFormErrors = ref({
 });
 const loginFormButton = ref(true);
 
-function clearLoginForm() {
+const clearLoginForm = () => {
   loginForm.value = {
     email: "",
     password: "",
     remember: false,
   };
   loginFormButton.value = true;
-}
-function clearLoginFormErrors() {
+};
+const clearLoginFormErrors = () => {
   loginFormErrors.value = {
     header: "",
     email: "",
   };
-}
+};
 
-function handleLoginForm() {
+const handleLoginForm = async () => {
   if (loginFormButton.value) {
     clearLoginFormErrors();
     loginFormButton.value = false;
 
-    store.dispatch("login", loginForm.value).then((response) => {
+    return await store.dispatch("login", loginForm.value).then((response) => {
       if (response.response?.data?.errors) {
         for (const [oKey, oValue] of Object.entries(
           response.response.data.errors
@@ -59,7 +61,7 @@ function handleLoginForm() {
       return;
     });
   }
-}
+};
 </script>
 
 <template>

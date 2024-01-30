@@ -23,20 +23,20 @@ const userFormErrors = ref({
 });
 const userFormButton = ref(true);
 
-function clearUserForm() {
+const clearUserForm = () => {
   userForm.value = {
     name: user.value.name,
     email: user.value.email,
   };
   userFormButton.value = true;
-}
-function clearUserFormErrors() {
+};
+const clearUserFormErrors = () => {
   userFormErrors.value = {
     header: "",
     name: "",
     email: "",
   };
-}
+};
 
 const userPasswordForm = ref({
   current_password: "",
@@ -51,22 +51,22 @@ const userPasswordFormErrors = ref({
 });
 const userPasswordFormButton = ref(true);
 
-function clearUserPasswordForm() {
+const clearUserPasswordForm = () => {
   userPasswordForm.value = {
     current_password: "",
     password: "",
     password_confirmation: "",
   };
   userPasswordFormButton.value = true;
-}
-function clearUserPasswordFormErrors() {
+};
+const clearUserPasswordFormErrors = () => {
   userPasswordFormErrors.value = {
     header: "",
     current_password: "",
     password: "",
     password_confirmation: "",
   };
-}
+};
 
 const userDeleteForm = ref({
   current_password: "",
@@ -77,52 +77,54 @@ const userDeleteFormErrors = ref({
 });
 const userDeleteFormButton = ref(true);
 
-function clearUserDeleteForm() {
+const clearUserDeleteForm = () => {
   userDeleteForm.value = {
     current_password: "",
   };
   userDeleteFormButton.value = true;
-}
-function clearUserDeleteFormErrors() {
+};
+const clearUserDeleteFormErrors = () => {
   userDeleteFormErrors.value = {
     header: "",
     current_password: "",
   };
-}
+};
 
-function handleUserForm() {
+const handleUserForm = async () => {
   if (userFormButton.value) {
     clearUserFormErrors();
     userFormButton.value = false;
 
-    store.dispatch("updateUser", userForm.value).then((response) => {
-      if (response.response?.data?.errors) {
-        for (const [oKey, oValue] of Object.entries(
-          response.response.data.errors
-        )) {
-          if (oKey in userFormErrors.value) {
-            userFormErrors.value[oKey] =
-              oValue.length > 0 ? oValue.join("<br>") : "";
+    return await store
+      .dispatch("updateUser", userForm.value)
+      .then((response) => {
+        if (response.response?.data?.errors) {
+          for (const [oKey, oValue] of Object.entries(
+            response.response.data.errors
+          )) {
+            if (oKey in userFormErrors.value) {
+              userFormErrors.value[oKey] =
+                oValue.length > 0 ? oValue.join("<br>") : "";
+            }
           }
+        } else if (!response.error) {
+          clearUserForm();
+          toast();
+        } else {
+          userFormErrors.value.header = "Oops. Something went wrong.";
         }
-      } else if (!response.error) {
-        clearUserForm();
-        toast();
-      } else {
-        userFormErrors.value.header = "Oops. Something went wrong.";
-      }
-      userFormButton.value = true;
-      return;
-    });
+        userFormButton.value = true;
+        return;
+      });
   }
-}
+};
 
-function handleUserPasswordForm() {
+const handleUserPasswordForm = async () => {
   if (userPasswordFormButton.value) {
     clearUserPasswordFormErrors();
     userPasswordFormButton.value = false;
 
-    store
+    return await store
       .dispatch("updateUserPassword", userPasswordForm.value)
       .then((response) => {
         if (response.response?.data?.errors) {
@@ -144,34 +146,36 @@ function handleUserPasswordForm() {
         return;
       });
   }
-}
+};
 
-function handleUserDeleteForm() {
+const handleUserDeleteForm = async () => {
   if (userDeleteFormButton.value) {
     clearUserDeleteFormErrors();
     userDeleteFormButton.value = false;
 
-    store.dispatch("deleteUser", userDeleteForm.value).then((response) => {
-      if (response.response?.data?.errors) {
-        for (const [oKey, oValue] of Object.entries(
-          response.response.data.errors
-        )) {
-          if (oKey in userDeleteFormErrors.value) {
-            userDeleteFormErrors.value[oKey] =
-              oValue.length > 0 ? oValue.join("<br>") : "";
+    return await store
+      .dispatch("deleteUser", userDeleteForm.value)
+      .then((response) => {
+        if (response.response?.data?.errors) {
+          for (const [oKey, oValue] of Object.entries(
+            response.response.data.errors
+          )) {
+            if (oKey in userDeleteFormErrors.value) {
+              userDeleteFormErrors.value[oKey] =
+                oValue.length > 0 ? oValue.join("<br>") : "";
+            }
           }
+        } else if (!response.error) {
+          clearUserDeleteForm();
+          router.push({ name: "AuthLogin" });
+        } else {
+          userDeleteFormErrors.value.header = "Oops. Something went wrong.";
         }
-      } else if (!response.error) {
-        clearUserDeleteForm();
-        router.push({ name: "AuthLogin" });
-      } else {
-        userDeleteFormErrors.value.header = "Oops. Something went wrong.";
-      }
-      userDeleteFormButton.value = true;
-      return;
-    });
+        userDeleteFormButton.value = true;
+        return;
+      });
   }
-}
+};
 </script>
 
 <template>

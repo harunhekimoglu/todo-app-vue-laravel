@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import path from "path";
+import { resolve } from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,14 +13,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "~": path.resolve(__dirname, "./node_modules"),
-      "@": path.resolve(__dirname, "./src"),
-      "@assets": path.resolve(__dirname, "./src/assets"),
-      "@filter": path.resolve(__dirname, "./src/filter"),
-      "@router": path.resolve(__dirname, "./src/router"),
-      "@store": path.resolve(__dirname, "./src/store"),
-      "@utils": path.resolve(__dirname, "./src/utils"),
-      "@view": path.resolve(__dirname, "./src/view"),
+      "@": resolve(__dirname, "./src"),
+      "@assets": resolve(__dirname, "./src/assets"),
+      "@composables": resolve(__dirname, "./src/composables"),
+      "@router": resolve(__dirname, "./src/router"),
+      "@store": resolve(__dirname, "./src/store"),
+      "@utils": resolve(__dirname, "./src/utils"),
+      "@view": resolve(__dirname, "./src/view"),
     },
   },
   plugins: [vue()],

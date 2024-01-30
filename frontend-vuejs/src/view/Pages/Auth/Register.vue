@@ -8,11 +8,13 @@ import PageComponent from "@view/Components/Auth/PageComponent.vue";
 const store = useStore();
 const router = useRouter();
 
+const ENV_PROD = import.meta.env.PROD;
+
 const registerForm = ref({
-  name: "",
-  email: "",
-  password: "",
-  password_confirmation: "",
+  name: ENV_PROD ? "" : "John Doe",
+  email: ENV_PROD ? "" : "john.doe@example.com",
+  password: ENV_PROD ? "" : "Password123!",
+  password_confirmation: ENV_PROD ? "" : "Password123!",
 });
 const registerFormErrors = ref({
   header: "",
@@ -23,7 +25,7 @@ const registerFormErrors = ref({
 });
 const registerFormButton = ref(true);
 
-function clearRegisterForm() {
+const clearRegisterForm = () => {
   registerForm.value = {
     name: "",
     email: "",
@@ -31,8 +33,8 @@ function clearRegisterForm() {
     password_confirmation: "",
   };
   registerFormButton.value = true;
-}
-function clearRegisterFormErrors() {
+};
+const clearRegisterFormErrors = () => {
   registerFormErrors.value = {
     header: "",
     name: "",
@@ -40,34 +42,36 @@ function clearRegisterFormErrors() {
     password: "",
     password_confirmation: "",
   };
-}
+};
 
-function handleRegisterForm() {
+const handleRegisterForm = async () => {
   if (registerFormButton.value) {
     clearRegisterFormErrors();
     registerFormButton.value = false;
 
-    store.dispatch("register", registerForm.value).then((response) => {
-      if (response.response?.data?.errors) {
-        for (const [oKey, oValue] of Object.entries(
-          response.response.data.errors
-        )) {
-          if (oKey in registerFormErrors.value) {
-            registerFormErrors.value[oKey] =
-              oValue.length > 0 ? oValue.join("<br>") : "";
+    return await store
+      .dispatch("register", registerForm.value)
+      .then((response) => {
+        if (response.response?.data?.errors) {
+          for (const [oKey, oValue] of Object.entries(
+            response.response.data.errors
+          )) {
+            if (oKey in registerFormErrors.value) {
+              registerFormErrors.value[oKey] =
+                oValue.length > 0 ? oValue.join("<br>") : "";
+            }
           }
+        } else if (!response.error) {
+          clearRegisterForm();
+          router.push({ name: "Base" });
+        } else {
+          registerFormErrors.value.header = "Oops. Something went wrong.";
         }
-      } else if (!response.error) {
-        clearRegisterForm();
-        router.push({ name: "Base" });
-      } else {
-        registerFormErrors.value.header = "Oops. Something went wrong.";
-      }
-      registerFormButton.value = true;
-      return;
-    });
+        registerFormButton.value = true;
+        return;
+      });
   }
-}
+};
 </script>
 
 <template>

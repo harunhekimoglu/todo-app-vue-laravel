@@ -1,6 +1,6 @@
 import CryptoJS from "crypto-js";
 
-export function getItem(key) {
+const getItem = (key) => {
   const secretKey = import.meta.env.VITE_LS_SECRET_KEY;
 
   let value = localStorage.getItem("__" + key);
@@ -13,12 +13,14 @@ export function getItem(key) {
   value = JSON.parse(value);
 
   return value.value || null;
-}
+};
 
-export function setItem(key, value) {
+const setItem = (key, value) => {
   const secretKey = import.meta.env.VITE_LS_SECRET_KEY;
 
   value = CryptoJS.AES.encrypt(JSON.stringify({ value }), secretKey).toString();
 
   localStorage.setItem("__" + key, value);
-}
+};
+
+export { getItem, setItem };

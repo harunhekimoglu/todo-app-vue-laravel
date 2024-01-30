@@ -34,21 +34,21 @@ const todoFormErrors = ref({
 });
 const todoFormButton = ref(true);
 
-function clearTodoForm() {
+const clearTodoForm = () => {
   todoForm.value = {
     id: null,
     title: "",
     description: "",
   };
   todoFormButton.value = true;
-}
-function clearTodoFormErrors() {
+};
+const clearTodoFormErrors = () => {
   todoFormErrors.value = {
     header: "",
     title: "",
     description: "",
   };
-}
+};
 
 const modal = ref({
   open: false,
@@ -56,7 +56,7 @@ const modal = ref({
   header: "",
 });
 
-async function openModal(type, id = null) {
+const openModal = async (type, id = null) => {
   clearTodoFormErrors();
 
   if (type === "create") {
@@ -75,20 +75,29 @@ async function openModal(type, id = null) {
   }
   modal.value.type = type;
   modal.value.open = true;
-}
+};
+
+const cancelModal = () => {
+  clearTodoFormErrors();
+  clearTodoForm();
+  todoFormButton.value = true;
+  modal.value.open = false;
+};
 
 const todos = ref([]);
 const todoFilters = ref({
   isDone: route.query.isDone === "true",
 });
 
-function getTodos() {
-  store.dispatch("getTodos", todoFilters.value.isDone).then((response) => {
-    todos.value = response.data || [];
-  });
-}
+const getTodos = async () => {
+  return await store
+    .dispatch("getTodos", todoFilters.value.isDone)
+    .then((response) => {
+      todos.value = response.data || [];
+    });
+};
 
-async function getTodo(id) {
+const getTodo = async (id) => {
   return await store.dispatch("getTodo", id).then((response) => {
     return (
       response.data || {
@@ -98,25 +107,25 @@ async function getTodo(id) {
       }
     );
   });
-}
+};
 
-function doneTodo(id, is_done) {
+const doneTodo = async (id, is_done) => {
   const data = {
     id,
     is_done,
   };
-  store.dispatch("updateTodo", data).then((response) => {
+  return await store.dispatch("updateTodo", data).then((response) => {
     if (!response.error) {
       getTodos();
     }
   });
-}
+};
 
-function deleteTodo(id) {
+const deleteTodo = async (id) => {
   toast("question", null, null, (instance, toast, closedBy) => {
     if (closedBy === "true") {
-      setTimeout(() => {
-        store.dispatch("deleteTodo", id).then((response) => {
+      setTimeout(async () => {
+        return await store.dispatch("deleteTodo", id).then((response) => {
           if (!response.error) {
             getTodos();
           }
@@ -124,35 +133,37 @@ function deleteTodo(id) {
       }, 100);
     }
   });
-}
+};
 
-function handleTodoForm() {
+const handleTodoForm = async () => {
   if (todoFormButton.value) {
     clearTodoFormErrors();
     todoFormButton.value = false;
 
-    store.dispatch("updateTodo", todoForm.value).then((response) => {
-      if (response.response?.data?.errors) {
-        for (const [oKey, oValue] of Object.entries(
-          response.response.data.errors
-        )) {
-          if (oKey in todoFormErrors.value) {
-            todoFormErrors.value[oKey] =
-              oValue.length > 0 ? oValue.join("<br>") : "";
+    return await store
+      .dispatch("updateTodo", todoForm.value)
+      .then((response) => {
+        if (response.response?.data?.errors) {
+          for (const [oKey, oValue] of Object.entries(
+            response.response.data.errors
+          )) {
+            if (oKey in todoFormErrors.value) {
+              todoFormErrors.value[oKey] =
+                oValue.length > 0 ? oValue.join("<br>") : "";
+            }
           }
+        } else if (!response.error) {
+          clearTodoForm();
+          getTodos();
+          modal.value.open = false;
+        } else {
+          todoFormErrors.value.header = "Oops. Something went wrong.";
         }
-      } else if (!response.error) {
-        clearTodoForm();
-        getTodos();
-        modal.value.open = false;
-      } else {
-        todoFormErrors.value.header = "Oops. Something went wrong.";
-      }
-      todoFormButton.value = true;
-      return;
-    });
+        todoFormButton.value = true;
+        return;
+      });
   }
-}
+};
 
 onMounted(() => {
   getTodos();
@@ -168,6 +179,9 @@ watch(
 watch(
   route,
   () => {
+    if (!route.query.isDone) {
+      router.push({ name: "TodoIndex", query: { isDone: false } });
+    }
     todoFilters.value.isDone = route.query.isDone === "true";
   },
   { deep: true }
@@ -227,30 +241,21 @@ watch(
               {{ todo.description }}
             </p>
             <p class="mt-1 text-xs leading-5 text-gray-700">
-              <div v-if="todo.done_at">
-                <span>
-                  Done At:
-                  {{ todo.done_at.slice(0, -8).replace("T", " ") }}
-                </span>
-                <br />
-              </div>
-              <div v-if="todo.updated_at">
-                <span>
-                  Updated At:
-                  {{ todo.updated_at.slice(0, -8).replace("T", " ") }}
-                </span>
-                <br />
-              </div>
-              <div v-if="todo.created_at">
-                <span>
-                  Created At:
-                  {{ todo.created_at.slice(0, -8).replace("T", " ") }}
-                </span>
-              </div>
+              <span v-if="todo.done_at"> Done At: {{ todo.done_at }} </span>
+              <br />
+              <span v-if="todo.updated_at">
+                Updated At: {{ todo.updated_at }}
+              </span>
+              <br />
+              <span v-if="todo.created_at">
+                Created At: {{ todo.created_at }}
+              </span>
             </p>
           </div>
         </div>
-        <div class="shrink-0 flex flex-col sm:flex-row items-center justify-center">
+        <div
+          class="shrink-0 flex flex-col sm:flex-row items-center justify-center"
+        >
           <a
             href="#"
             @click.prevent="doneTodo(todo.id, !todo.is_done)"
@@ -458,14 +463,14 @@ watch(
                   type="button"
                   @click="handleTodoForm"
                   :disabled="!todoFormButton"
-                  class="inline-flex w-full justify-center rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-500 sm:ml-3 sm:w-auto"
+                  class="inline-flex w-full justify-center rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-500 sm:ml-3 sm:w-auto disabled:hover:bg-sky-600 disabled:opacity-75"
                 >
                   Submit
                 </button>
                 <button
                   type="button"
                   class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                  @click="modal.open = false"
+                  @click="cancelModal"
                   ref="cancelButtonRef"
                 >
                   Cancel

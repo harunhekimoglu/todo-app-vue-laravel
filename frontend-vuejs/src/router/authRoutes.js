@@ -14,11 +14,13 @@ const authRoutes = [
   {
     path: "forgot-password",
     name: "AuthForgotPassword",
+    meta: { title: "Reset Password" },
     component: () => import("@view/Pages/Auth/ForgotPassword.vue"),
   },
   {
     path: "reset-password/:token",
     name: "AuthResetPassword",
+    meta: { title: "Reset Password" },
     component: () => import("@view/Pages/Auth/ResetPassword.vue"),
   },
 ];

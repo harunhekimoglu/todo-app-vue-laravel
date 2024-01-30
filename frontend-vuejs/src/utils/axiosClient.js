@@ -16,12 +16,9 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use((config) => {
   const userTokenFull = store.getters.getUserTokenFull || "";
-
-  if (!userTokenFull) {
-    return config;
+  if (userTokenFull) {
+    config.headers.Authorization = userTokenFull;
   }
-
-  config.headers.Authorization = userTokenFull;
 
   return config;
 });

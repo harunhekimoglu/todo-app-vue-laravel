@@ -6,8 +6,10 @@ import PageComponent from "@view/Components/Auth/PageComponent.vue";
 
 const store = useStore();
 
+const ENV_PROD = import.meta.env.PROD;
+
 const forgotPasswordForm = ref({
-  email: "",
+  email: ENV_PROD ? "" : "john.doe@example.com",
 });
 const forgotPasswordFormErrors = ref({
   header: "",
@@ -16,20 +18,20 @@ const forgotPasswordFormErrors = ref({
 const forgotPasswordFormButton = ref(true);
 const forgotPasswordFormStatus = ref("");
 
-function clearForgotPasswordForm() {
+const clearForgotPasswordForm = () => {
   forgotPasswordForm.value = {
     email: "",
   };
   forgotPasswordFormButton.value = true;
-}
-function clearForgotPasswordFormErrors() {
+};
+const clearForgotPasswordFormErrors = () => {
   forgotPasswordFormErrors.value = {
     header: "",
     email: "",
   };
-}
+};
 
-function handleForgotPasswordForm() {
+const handleForgotPasswordForm = () => {
   if (forgotPasswordFormButton.value) {
     clearForgotPasswordFormErrors();
     forgotPasswordFormButton.value = false;
@@ -56,7 +58,7 @@ function handleForgotPasswordForm() {
         return;
       });
   }
-}
+};
 </script>
 
 <template>

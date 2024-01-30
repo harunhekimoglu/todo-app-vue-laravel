@@ -7,13 +7,13 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 const store = useStore();
 const router = useRouter();
 
-function handleLogout() {
-  store.dispatch("logout").then((response) => {
+const handleLogout = async () => {
+  return await store.dispatch("logout").then((response) => {
     if (!response.error) {
       router.push({ name: "AuthLogin" });
     }
   });
-}
+};
 </script>
 
 <template>
